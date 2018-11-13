@@ -3,12 +3,14 @@
 # GOING.
 
 class Game
-	attr_accessor :player_1, :player_2, :p1_playing, :p2_playing
+	attr_accessor :player_1, :player_2, :p1_name, :p2_name, :p1_playing, :p2_playing
 	@@board = []
 
-	def initialize(player_1, player_2)
+	def initialize(p1_name, player_1, p2_name, player_2)
 		@player_1 = player_1
 		@player_2 = player_2
+		@p1_name = p1_name
+		@p2_name = p2_name
 		@p1_playing = true
 		@p2_playing = false
 		game = Board.new
@@ -17,7 +19,6 @@ class Game
 	class Board < Game
 
 		def initialize
-			game_running = true
 			@@board = build_board
 		end
 
@@ -25,7 +26,7 @@ class Game
 			i = 0
 			3.times do
 				row = Hash.new
-				3.times { i += 1; row[i] = "#{i}" }
+				3.times { i += 1; row[i] = "   " }
 				@@board.push(row)
 			end
 			@@board
@@ -38,7 +39,7 @@ class Game
 
 	def make_move
 		# SHOWS WHICH PLAYER IS PLAYING AND WHERE THEY WANT TO PUT THEIR CHARACTER
-
+		puts @p1_playing ? "#{@p1_name.capitalize}'s Turn!" : "#{@p2_name.capitalize}'s Turn!"
 		@p1_playing ? run_round(@player_1) : run_round(@player_2)
 
 	end
@@ -60,12 +61,12 @@ class Game
 
 	def update_board(player, cell)
 		# ASSIGNS VALUE TO CORESPONDING CELL IN @@BOARD
-		@@board[cell[0]][cell[1]] = player
+		@@board[cell[0]][cell[1]] == "   " ? @@board[cell[0]][cell[1]] = player : (puts "\n\nALREADY TAKEN!\nGO AGAIN!\n\n"; make_move )
 	end
 
 	def get_cell
 		# FINDS CELL LOCATION
-		puts "Make your move."
+		puts "Give me the cell number you want:"
 		move = gets.chomp.to_i
 		move <= 3 ? [0, move] : (move <= 6 ? [1, move] : (move <= 9 ? [2, move] : "ERROR"))
 	end
@@ -86,9 +87,12 @@ class Game
 		column = 1
 		while row < 3
 			while column <= 9
+				# puts board[row][column], board[row][column+1], board[row][column+2] == "X", "O"
 				if board[row][column] == board[row][column+1] && board[row][column+1] == board[row][column+2]
-					board[row][column] == "X" ? player_1_win : player_2_win
-					return true
+					if board[row][column] != "   "
+						board[row][column] == "X" ? player_1_win : player_2_win
+						return true
+					end
 				end
 
 				column += 3
@@ -101,42 +105,50 @@ class Game
 
 		while column <= 3
 			if board[row][column] == board[row+1][column+3] && board[row+1][column+3] == board[row+2][column+6]
-					board[row][column] == "X" ? player_1_win : player_2_win
-					return true
+					if board[row][column] != "   "
+						board[row][column] == "X" ? player_1_win : player_2_win
+						return true
+					end
 			end
 			column += 1
 		end
 
 		if board[0][1] == board[1][5] && board[1][5] == board[2][9]
-			board[1][5] == "X" ? player_1_win : player_2_win
-			return true
+			if board[1][5] != "   "
+				board[1][5] == " X " ? player_1_win : player_2_win
+				return true
+			end
 		elsif board[0][3] == board[1][5] && board[1][5] == board[2][7]
-			board[1][5] == "X" ? player_1_win : player_2_win
-			return true
+			if board[1][5] != "   "
+				board[1][5] == " X " ? player_1_win : player_2_win
+				return true
+			end
 		end
 
-		puts "Keep playing."
 		false
 	end
 
 	def player_1_win
 		# IF THE KEY OF THREE IN A ROW MATCHES P1, RETURNS "YOU WIN!" MESSAGE AND FINISHES PROGRAM
-		# true
-		puts "PLAYER_1 WINS!"
+		puts "#{@p1_name.upcase} WINS!"
 
 	end
 
 	def player_2_win
 		# IF THE KEY OF THREE IN A ROW MATCHES P2, RETURNS "YOU WIN!" MESSAGE AND FINISHES PROGRAM
-		# false
-		puts "PLAYER_2 WINS!"
+		puts "#{p2_name.upcase} WINS!"
 	end
 
 
 end
+puts "Player 1, give me your first name."
+p1_name = gets.chomp.downcase
+puts "Player 2, give me your first name."
+p2_name = gets.chomp.downcase
 
-game = Game.new("X", "O")
+
+game = Game.new(p1_name, " X ", p2_name, " O ")
 game.display_board
 game.make_move
-# puts ""
+
 # game.display_board
